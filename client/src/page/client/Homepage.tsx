@@ -2,6 +2,7 @@ import Layout from "../../component/Layout";
 import Slider from "../../component/Slider";
 import { Link } from "react-router-dom"; 
 import ProductLayout from "../../component/BestSellingProduct/ProductLayout";
+import BrandSlider from "../../component/BrandSlider";
 
 import PedalBoard from "../../assets/banner/Pedalboard.webp"
 import Guitar_Amply from "../../assets/banner/Guitar_Amply.webp"
@@ -32,7 +33,11 @@ export default function () {
                     />
                 </Link>
             </div>
-            <ProductLayout/>
+            <ProductLayout />
+            <h2 className="text-xl font-bold text-[#2c3e50] md:text-xl">
+                Shop by brand
+            </h2>
+            <BrandSlider/>
         </Layout>
     )
 }
