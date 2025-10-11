@@ -32,9 +32,6 @@ export default function () {
                     />
                 </Link>
             </div>
-            <h2 className="text-xl font-bold text-[#2c3e50] md:text-xl">
-                Best Selling Product
-            </h2>
             <ProductLayout/>
         </Layout>
     )

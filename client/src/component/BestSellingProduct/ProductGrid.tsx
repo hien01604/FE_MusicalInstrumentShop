@@ -1,83 +1,72 @@
-import React, { useRef } from 'react'; // Import useRef để điều khiển Swiper
+import { useRef } from 'react';
 import { Swiper, SwiperSlide } from 'swiper/react';
 import { Navigation } from 'swiper/modules';
-import type SwiperCore from 'swiper'; // Import SwiperCore type
+import type SwiperCore from 'swiper';
 
 import ProductCard from "../ProductCard";
 
-// 1. Định nghĩa Interface cho cấu trúc dữ liệu thô (RawProductData)
-export interface RawProductData {
-    "Category": string; 
-    "Collection": string; 
-    "Brand": string; 
-    "Product Name": string; 
-    "Price": string; 
-    "Description": string; 
-    "Images": string[]; 
-    "stock_quantity": number;
+export interface SimpleProduct {
+    id: number;
+    name: string;
+    price: string;
+    image: string[];
+    status: 'Có hàng' | 'Hết hàng';
+    brand?: string;
+    description: string;
 }
 
-// 2. Định nghĩa Props cho component
 interface ProductGridProps {
-    products: RawProductData[]; // Prop products là một mảng các RawProductData
+    products: SimpleProduct[];
 }
 
-// 3. Áp dụng kiểu dữ liệu và code TSX
 export default function ProductGrid({ products }: ProductGridProps) {
     
-    // Khai báo useRef với kiểu SwiperCore
     const swiperRef = useRef<SwiperCore | null>(null); 
+
+    const swiperCustomStyles = `
+        .product-grid-swiper-container .swiper-button-prev,
+        .product-grid-swiper-container .swiper-button-next {
+            --swiper-navigation-size: 28px;
+            --swiper-navigation-color: #9CA3AF;
+            margin-top: 0;
+            top: 50%;
+            transform: translateY(-50%);
+        }
+        .product-grid-swiper-container .swiper-button-prev:after,
+        .product-grid-swiper-container .swiper-button-next:after {
+            font-size: 1.5rem !important;
+        }
+        .product-grid-swiper-container .swiper-button-prev,
+        .product-grid-swiper-container .swiper-button-next {
+            background-image: none !important;
+        }
+    `;
 
     return (
         <div className="relative product-grid-swiper-container">
             
-            {/* Sử dụng thẻ style để tùy chỉnh mũi tên (Dùng biến CSS của Swiper) */}
-            <style jsx global>{`
-                .product-grid-swiper-container .swiper-button-prev,
-                .product-grid-swiper-container .swiper-button-next {
-                    --swiper-navigation-size: 28px;
-                    --swiper-navigation-color: #9CA3AF;
-                    margin-top: 0;
-                    top: 50%;
-                    transform: translateY(-50%);
-                }
-                
-                .product-grid-swiper-container .swiper-button-prev:after,
-                .product-grid-swiper-container .swiper-button-next:after {
-                    font-size: 1.5rem !important;
-                }
-
-                .product-grid-swiper-container .swiper-button-prev,
-                .product-grid-swiper-container .swiper-button-next {
-                    background-image: none !important;
-                }
-            `}</style>
-
+            <style dangerouslySetInnerHTML={{ __html: swiperCustomStyles }} />
+            
             <Swiper
-                // Khai báo module Navigation ở đây là không cần thiết nếu dùng nút custom
-                // nhưng tôi vẫn giữ lại để tương thích với Swiper CSS variables
                 modules={[Navigation]} 
                 breakpoints={{
                     0: { slidesPerView: 1.2, spaceBetween: 16 },
                     640: { slidesPerView: 2, spaceBetween: 20 },
                     1024: { slidesPerView: 4, spaceBetween: 24 },
                 }}
-                navigation // Kích hoạt Navigation để sử dụng CSS variables
+                navigation 
                 className="w-full product-grid-swiper h-full"
                 onSwiper={(swiper) => {
                     swiperRef.current = swiper;
                 }}
             >
                 {products.map((product, index) => (
-                    // Cần dùng key ổn định hơn index, nhưng tạm dùng index
                     <SwiperSlide key={index}> 
-                        {/* Truyền đối tượng product thô vào ProductCard */}
                         <ProductCard product={product} /> 
                     </SwiperSlide>
                 ))}
             </Swiper>
             
-            {/* ⬅️ Nút PREV (Bên trái) - Sử dụng Tailwind */}
             <button
                 onClick={() => swiperRef.current?.slidePrev()} 
                 className="absolute left-0 top-1/2 transform -translate-y-1/2 z-10 
@@ -91,7 +80,6 @@ export default function ProductGrid({ products }: ProductGridProps) {
                 </svg>
             </button>
 
-            {/* ➡️ Nút NEXT (Bên phải) - Sử dụng Tailwind */}
             <button
                 onClick={() => swiperRef.current?.slideNext()} 
                 className="absolute right-0 top-1/2 transform -translate-y-1/2 z-10 

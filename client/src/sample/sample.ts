@@ -20,14 +20,12 @@ export interface SimpleProduct {
     id: number;
     name: string;
     price: string;
-    image: string;
+    image: string[];
     status: 'Có hàng' | 'Hết hàng';
     brand?: string;
     description: string;
 }
 
-const product_picture = gretschData.Images[0]; 
-// Lấy mô tả chi tiết gốc để tái sử dụng
 const originalDescription = gretschData.Description; 
 
 const sampleProducts: SimpleProduct[] = [];
@@ -37,7 +35,7 @@ sampleProducts.push({
     id: 1,
     name: gretschData["Product Name"],
     price: gretschData.Price, 
-    image: product_picture,
+    image: gretschData.Images,
     status: gretschData.stock_quantity > 0 ? 'Có hàng' : 'Hết hàng',
     brand: 'Gretsch',
     description: originalDescription 
@@ -48,9 +46,10 @@ for (let i = 2; i <= 100; i++) {
     
     sampleProducts.push({
         id: i,
-        name: `Sản phẩm mẫu ${i}`,
+        name: gretschData["Product Name"],
+        brand: gretschData.Brand,
         price: `${randomPrice.toLocaleString('vi-VN')}₫`,
-        image: product_picture,
+        image: gretschData.Images,
         status: Math.random() > 0.1 ? 'Có hàng' : 'Hết hàng',
         description: originalDescription 
     });

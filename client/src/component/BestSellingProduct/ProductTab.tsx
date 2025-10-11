@@ -13,7 +13,6 @@ interface Tab {
 // Áp dụng kiểu dữ liệu vào component
 export default function BestSellingTabs({ activeTab, setActiveTab }: BestSellingTabsProps) {
     
-    // Khai báo kiểu dữ liệu cho mảng tabs
     const tabs: Tab[] = [
         { id: 'electric', name: 'Electric Guitars' },
         { id: 'acoustic', name: 'Acoustic Guitars' },
@@ -22,7 +21,7 @@ export default function BestSellingTabs({ activeTab, setActiveTab }: BestSelling
     
     return (
         // flex space-x-6: Sắp xếp ngang với khoảng cách 1.5rem giữa các tab
-        <div className="flex space-x-6 mb-8 text-lg">
+        <div className="flex space-x-6 mb-4 text-lg">
             {tabs.map((tab) => (
                 <button 
                     key={tab.id}
