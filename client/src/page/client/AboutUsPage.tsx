@@ -1,4 +1,5 @@
 import Header from "../../component/Header/Header";
+import Breadcrumb from "../../component/Breadcrumb";
 import Footer from "../../component/Footer/Footer";
 import Aboutus from "../../assets/Aboutus.jpg";
 
@@ -7,14 +8,12 @@ export default function AboutUsPage() {
     <div className="bg-white min-h-screen flex flex-col">
       {/* 🔝 Header */}
       <Header />
+      <Breadcrumb />
 
       {/* 🌿 Content */}
       <main className="flex-1">
         <div className="max-w-7xl mx-auto w-full px-4 md:px-6 lg:px-20 py-6 space-y-8">
-          {/* Breadcrumb */}
-          <div className="text-sm text-gray-500">
-            Home / <span className="text-yellow-600 font-medium">About Us</span>
-          </div>
+        
 
           {/* Title */}
           <h1 className="text-3xl font-bold text-gray-800">

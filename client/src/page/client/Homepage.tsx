@@ -4,6 +4,7 @@ import { Link } from "react-router-dom";
 import ProductLayout from "../../component/BestSellingProduct/ProductLayout";
 import BrandSlider from "../../component/BrandSlider";
 import Header from "../../component/Header/Header";
+import Breadcrumb from "../../component/Breadcrumb";
 import Footer from "../../component/Footer/Footer";
 
 import PedalBoard from "../../assets/banner/Pedalboard.webp"
@@ -13,6 +14,7 @@ export default function () {
     return (
         <>
             <Header/>
+            <Breadcrumb />
         <Layout>
             <Slider />
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
