@@ -1,20 +1,14 @@
-import React from "react";
+import { Link } from "react-router-dom";
 
-const FooterLinks: React.FC = () => {
-  const links = ["About Us", "Delivery Information", "Privacy Policy", "Terms & Conditions", "Contact Us"];
-
+export default function FooterLinks() {
   return (
-    <div>
-      <h3 className="text-lg font-semibold text-gray-800 mb-3 text-center md:text-left">Company</h3>
-      <ul className="space-y-2 text-sm text-gray-600 text-center md:text-left">
-        {links.map((link) => (
-          <li key={link} className="hover:text-yellow-600 cursor-pointer transition-colors">
-            {link}
-          </li>
-        ))}
-      </ul>
+    <div className="flex flex-col gap-1 text-sm text-gray-700">
+      <h3 className="text-lg font-semibold text-gray-900 mb-2">Company</h3>
+      <Link to="/about-us" className="hover:text-yellow-600 transition">About Us</Link>
+      <Link to="/delivery" className="hover:text-yellow-600 transition">Delivery Information</Link>
+      <Link to="/privacy" className="hover:text-yellow-600 transition">Privacy Policy</Link>
+      <Link to="/terms" className="hover:text-yellow-600 transition">Terms & Conditions</Link>
+      <Link to="/contact" className="hover:text-yellow-600 transition">Contact Us</Link>
     </div>
   );
-};
-
-export default FooterLinks;
+}

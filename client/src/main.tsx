@@ -6,6 +6,7 @@ import 'swiper/css/navigation';
 import 'swiper/css/pagination';
 import App from './App.tsx'
 
+
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
     <App />
