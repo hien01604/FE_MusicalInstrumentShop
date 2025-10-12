@@ -22,6 +22,18 @@ const NavLinks: React.FC = () => {
       >
         Accessories
       </NavLink>
+
+      {/* 🆕 Product link */}
+      <NavLink
+        to="/product"
+        className={({ isActive }) =>
+          `hover:text-orange-600 border-b-2 transition ${
+            isActive ? "border-orange-600 text-orange-700" : "border-transparent"
+          }`
+        }
+      >
+        Product
+      </NavLink>
     </nav>
   );
 };
