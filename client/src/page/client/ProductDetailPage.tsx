@@ -3,8 +3,10 @@ import { useParams } from "react-router-dom";
 import Header from "../../component/Header/Header";
 import Footer from "../../component/Footer/Footer";
 import Breadcrumb from "../../component/Breadcrumb";
-import ProductDetailMain from "../../component/ProductDetail/ProductDetailLayout";
+import ProductDetailLayout from "../../component/ProductDetail/ProductDetailLayout";
 import productData from "../../sample/sample";
+import ProductLayout from "../../component/BestSellingProduct/ProductLayout";
+import Layout from "../../component/Layout";
 
 const ProductDetailPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -15,7 +17,7 @@ const ProductDetailPage: React.FC = () => {
       <>
         <Header />
         <div className="text-center py-20 text-gray-600">
-          Product not found.
+          Product not found 😢
         </div>
         <Footer />
       </>
@@ -24,10 +26,22 @@ const ProductDetailPage: React.FC = () => {
 
   return (
     <>
+      {/* Header */}
       <Header />
-      <Breadcrumb />
-      <ProductDetailMain product={product} />
-      
+
+      {/* Breadcrumb */}
+        <Breadcrumb />
+
+      {/* Main Content (Layout Wrapper) */}
+      <Layout>
+        {/* Product Detail */}
+        <ProductDetailLayout product={product} />
+
+        {/* Best Selling / Related Products */}
+          <ProductLayout />
+      </Layout>
+
+      {/* Footer */}
       <Footer />
     </>
   );

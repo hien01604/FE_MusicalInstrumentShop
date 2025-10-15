@@ -6,11 +6,13 @@ import HomePage from './page/client/Homepage';
 import AboutUsPage from "./page/client/AboutUsPage";
 import ProductPage from "./page/client/ProductPage";
 import ProductDetailPage from "./page/client/ProductDetailPage";
+import ScrollToTop from './component/ScrollToTop';
 
 function App() {
 
   return (
     <BrowserRouter>
+    <ScrollToTop />
       <Routes>
         <Route path='/' element={<HomePage />}/>
         <Route path='/login' element={<LoginPage />} />

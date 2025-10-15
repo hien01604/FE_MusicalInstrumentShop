@@ -5,8 +5,8 @@ interface Props {
   description: string;
 }
 
-const ProductTabs: React.FC<Props> = ({ description }) => {
-  const [openTab, setOpenTab] = useState<number | null>(null);
+const ProductSpec: React.FC<Props> = ({ description }) => {
+  const [openTab, setOpenTab] = useState<number | null>(0);
 
   const tabs = [
     {
@@ -21,27 +21,32 @@ const ProductTabs: React.FC<Props> = ({ description }) => {
     {
       title: "Specifications",
       content: `
-      Body Shape: ST Style
-      Body Material: Poplar
-      Body Colour: Dove Grey
-      Body Finish: Gloss
-      Fretboard Material: Laurel
-      Fretboard Radius: 12"
-      Scale Length: 25"
-      No. of Frets: 22
-      Fretboard Inlays: Dot
-      Pickups: HSS
-      Bridge: 6 Point Vintage Tremolo
-      Strings: 09-42
-      Tuning Machines: Dot
-      Hardware Finish: Chrome
-      Case: None
+Body Shape: ST Style
+Body Material: Poplar
+Body Colour: Dove Grey
+Body Finish: Gloss
+Fretboard Material: Laurel
+Fretboard Radius: 12"
+Scale Length: 25"
+No. of Frets: 22
+Fretboard Inlays: Dot
+Pickups: HSS
+Bridge: 6 Point Vintage Tremolo
+Strings: 09-42
+Tuning Machines: Dot
+Hardware Finish: Chrome
+Case: None
       `,
     },
   ];
 
   return (
-    <div className="w-[560px] max-w-full">
+    <div className="w-full md:w-[90%] lg:w-[540px] mt-3 ml-[2px]">
+      {/* Optional small header */}
+      <h3 className="text-[15px] font-semibold text-gray-800 mb-2 md:hidden">
+        Product Information
+      </h3>
+
       {tabs.map((tab, i) => {
         const isOpen = openTab === i;
         return (
@@ -56,7 +61,7 @@ const ProductTabs: React.FC<Props> = ({ description }) => {
               onClick={() => setOpenTab(isOpen ? null : i)}
               className="w-full flex justify-between items-center px-5 py-4 text-left hover:bg-gray-100 transition"
             >
-              <span className="font-semibold text-[15px] text-gray-800">
+              <span className="font-medium text-[15px] text-gray-800 tracking-wide">
                 {tab.title}
               </span>
 
@@ -86,4 +91,4 @@ const ProductTabs: React.FC<Props> = ({ description }) => {
   );
 };
 
-export default ProductTabs;
+export default ProductSpec;
