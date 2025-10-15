@@ -27,7 +27,6 @@ const Breadcrumb: React.FC = () => {
             to="/"
             className="flex items-center hover:text-yellow-600 font-medium"
           >
-            <Home className="w-4 h-4 mr-1" />
             Home
           </Link>
         </li>

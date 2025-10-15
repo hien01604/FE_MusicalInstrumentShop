@@ -10,6 +10,7 @@ import ScrollToTop from './component/ScrollToTop';
 import DeliverInfoPage from './page/client/DeliveryInfoPage';
 import PrivacyPolicyPage from './page/client/PrivacyPolicyPage';
 import TermsConditionsPage from './page/client/TermsConditionsPage';
+import ContactusPage from './page/client/ContactusPage';
 
 function App() {
 
@@ -26,6 +27,7 @@ function App() {
         <Route path="/delivery-information" element={<DeliverInfoPage />} />
         <Route path="/privacy-policy" element={<PrivacyPolicyPage />} />
         <Route path="/terms-and-conditions" element={<TermsConditionsPage />} />
+        <Route path="/contact-us" element={<ContactusPage />} />
 
       </Routes>
     </BrowserRouter>
