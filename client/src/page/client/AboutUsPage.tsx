@@ -14,7 +14,9 @@ export default function AboutUsPage() {
       {/* 🌿 Content */}
       <Layout>
         {/* Title */}
-        <h1 className="text-3xl font-bold text-gray-800">About Solar Strings</h1>
+        <h1 className="text-3xl font-bold bg-gradient-to-r from-[#A67C00] to-[#D4AF37] text-transparent bg-clip-text">
+            About Solar Strings
+          </h1>
 
         {/* --- Main Content --- */}
         <div className="grid md:grid-cols-2 gap-8 items-start">

@@ -7,6 +7,7 @@ import AboutUsPage from "./page/client/AboutUsPage";
 import ProductPage from "./page/client/ProductPage";
 import ProductDetailPage from "./page/client/ProductDetailPage";
 import ScrollToTop from './component/ScrollToTop';
+import DeliverInfoPage from './page/client/DeliveryInfoPage';
 
 function App() {
 
@@ -20,6 +21,7 @@ function App() {
         <Route path="/about-us" element={<AboutUsPage />} />      
         <Route path="/product" element={<ProductPage />} />
         <Route path="/product/:id" element={<ProductDetailPage />} />
+        <Route path="/delivery" element={<DeliverInfoPage />} />
 
       </Routes>
     </BrowserRouter>
