@@ -6,7 +6,7 @@ interface Props {
 }
 
 const ProductSpec: React.FC<Props> = ({ description }) => {
-  const [openTab, setOpenTab] = useState<number | null>(0);
+  const [openTabs, setOpenTabs] = useState<Set<number>>(new Set());
 
   const tabs = [
     {
@@ -40,6 +40,18 @@ Case: None
     },
   ];
 
+  const toggleTab = (index: number) => {
+    setOpenTabs((prev) => {
+      const newTabs = new Set(prev);
+      if (newTabs.has(index)) {
+        newTabs.delete(index); // Close tab if it's already open
+      } else {
+        newTabs.add(index); // Open tab if it's closed
+      }
+      return newTabs;
+    });
+  };
+
   return (
     <div className="w-full md:w-[90%] lg:w-[540px] mt-3 ml-[2px]">
       {/* Optional small header */}
@@ -48,7 +60,7 @@ Case: None
       </h3>
 
       {tabs.map((tab, i) => {
-        const isOpen = openTab === i;
+        const isOpen = openTabs.has(i);
         return (
           <div
             key={i}
@@ -58,7 +70,7 @@ Case: None
           >
             {/* Header */}
             <button
-              onClick={() => setOpenTab(isOpen ? null : i)}
+              onClick={() => toggleTab(i)}
               className="w-full flex justify-between items-center px-5 py-4 text-left hover:bg-gray-100 transition"
             >
               <span className="font-medium text-[15px] text-gray-800 tracking-wide">

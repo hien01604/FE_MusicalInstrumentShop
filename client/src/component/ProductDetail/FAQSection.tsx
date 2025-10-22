@@ -40,7 +40,19 @@ const faqs = [
 ];
 
 const FAQSection: React.FC = () => {
-  const [openIndex, setOpenIndex] = useState<number | null>(0);
+  const [openIndices, setOpenIndices] = useState<Set<number>>(new Set());
+
+  const toggleFAQ = (index: number) => {
+    setOpenIndices((prev) => {
+      const newOpenIndices = new Set(prev);
+      if (newOpenIndices.has(index)) {
+        newOpenIndices.delete(index); // Close the tab if it's already open
+      } else {
+        newOpenIndices.add(index); // Open the tab if it's closed
+      }
+      return newOpenIndices;
+    });
+  };
 
   return (
     <section className="max-w-6xl mx-auto mt-12">
@@ -51,12 +63,12 @@ const FAQSection: React.FC = () => {
             className="bg-[#F7F6F3] border border-gray-200 rounded-sm overflow-hidden"
           >
             <button
-              onClick={() => setOpenIndex(openIndex === index ? null : index)}
+              onClick={() => toggleFAQ(index)}
               className="w-full flex justify-between items-center px-5 py-4 text-left"
             >
               <span
                 className={`font-semibold text-[15px] ${
-                  openIndex === index ? "text-black" : "text-gray-800"
+                  openIndices.has(index) ? "text-black" : "text-gray-800"
                 }`}
               >
                 {item.q}
@@ -64,7 +76,7 @@ const FAQSection: React.FC = () => {
               <ChevronDown
                 size={20}
                 className={`text-gray-600 transition-transform ${
-                  openIndex === index ? "rotate-180" : ""
+                  openIndices.has(index) ? "rotate-180" : ""
                 }`}
               />
             </button>
@@ -72,7 +84,7 @@ const FAQSection: React.FC = () => {
             {/* Nội dung mở */}
             <div
               className={`overflow-hidden transition-all duration-300 ${
-                openIndex === index ? "max-h-96 py-2 px-5" : "max-h-0"
+                openIndices.has(index) ? "max-h-96 py-2 px-5" : "max-h-0"
               }`}
             >
               <div className="text-gray-700 text-sm leading-relaxed">
