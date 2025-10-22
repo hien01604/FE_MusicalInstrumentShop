@@ -4,6 +4,8 @@ import Footer from "../../component/Footer/Footer";
 import Breadcrumb from "../../component/Breadcrumb";
 import Layout from "../../component/Layout";
 import CartContent from "../../component/Cart/CartContent";
+import BrandSlider from "../../component/BrandSlider";
+import ProductLayout from "../../component/BestSellingProduct/ProductLayout";
 
 const CartPage: React.FC = () => {
   return (
@@ -18,8 +20,10 @@ const CartPage: React.FC = () => {
           </h1>
 
         <CartContent />
+        <ProductLayout />
+        <BrandSlider/>
       </Layout>
-
+      
       <Footer />
     </>
   );
