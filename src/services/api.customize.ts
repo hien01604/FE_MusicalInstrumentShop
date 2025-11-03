@@ -29,7 +29,8 @@ export function createApi({
       if (err?.response?.status === 401 && onUnauthorized) {
         onUnauthorized();
       }
-      return err?.response?.data ?? Promise.reject(err);
+      const errorData = err?.response?.data;
+      return Promise.reject(errorData || err);
     }
   );
 
@@ -40,7 +41,7 @@ export const clientApi = createApi({
   baseURL: import.meta.env.VITE_BACKEND_URL,
   getToken: () => localStorage.getItem("access_token"),
   onUnauthorized: () => {
-    window.location.href = "/login";
+    // window.location.href = "/login";
   },
 });
 

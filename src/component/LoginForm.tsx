@@ -1,20 +1,59 @@
 import InputField from "./InputField";
-import { Link } from "react-router-dom"; 
+import { Link, useNavigate } from "react-router-dom"; 
 import { useGoogleLogin } from '@react-oauth/google';
 import { FcGoogle } from 'react-icons/fc';
+import { useState } from "react";
+import { localLoginAPI } from "../services/client/auth.api";
+import type { ILoginRequest, ILoginResponse } from "../types/auth.type";
 
 export default function LoginForm() {
+    const [email, setEmail] = useState("");
+    const [password, setPassword] = useState("");
+    const [rememberMe, setRememberMe] = useState(false);
+    const [error, setError] = useState<string | null>(null);
+    const navigate = useNavigate();
+
+    const haddleSubmit = async (e: React.FormEvent) => {
+        e.preventDefault();
+        const loginPayload: ILoginRequest = { email, password, rememberMe };
+        try {
+            const response = await localLoginAPI(loginPayload);
+            if (response.data) {
+                const data: ILoginResponse = response.data;
+                if (rememberMe) {
+                    localStorage.setItem("access_token", data.access_token);
+                    localStorage.setItem("refresh_token", data.refresh_token);
+                }
+                else {
+                    sessionStorage.setItem("access_token", data.access_token);
+                    sessionStorage.setItem("refresh_token", data.refresh_token);
+                }
+                navigate("/");
+            }
+            else {
+                setError("Login failed: No data received");
+            }
+        }
+        catch (err: any) {
+            setError(err.message);
+        }
+    }
+
     const handleGoogleLogin = async()=>{}
     return (
         <div className="flex justify-center items-center p-4 "> 
             
-            <form className="w-full max-w-md p-8 space-y-6 bg-white border border-gray-200 rounded-xl shadow-xl">
+            <form className="w-full max-w-md p-8 space-y-6 bg-white border border-gray-200 rounded-xl shadow-xl"
+                onSubmit={haddleSubmit}
+            >
                 
                 <InputField
                     label="Email Address"
                     required
                     type="email"
                     placeholder="Enter Your Email"
+                    value={email}
+                    onChange={(e)=>setEmail(e.target.value)}
                 />
 
                 <InputField
@@ -22,6 +61,8 @@ export default function LoginForm() {
                     required
                     type="password"
                     placeholder="Enter Your Password"
+                    value={password}
+                    onChange={(e)=>setPassword(e.target.value)}
                 />
 
                 <div className="flex justify-between items-center text-sm">
@@ -29,6 +70,8 @@ export default function LoginForm() {
                         <input 
                             type="checkbox" 
                             className="rounded border-gray-300 text-red-500 focus:ring-red-500 h-4 w-4" 
+                            checked={rememberMe}
+                            onChange={(e) => setRememberMe(e.target.checked)}
                         />
                         <span>Remember Me</span>
                     </label>

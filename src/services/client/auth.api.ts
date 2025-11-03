@@ -1,14 +1,15 @@
 import { clientApi } from "../api.customize"
 import type { IForgotPasswordRequest, ILoginRequest, ILoginResponse, IRefreshTokenRequest, IRefreshTokenResponse, IRegisterRequest, IRegisterResponse, IResetPasswordRequest } from "../../types/auth.type";
+import type { IBackendRes } from "../../types/common.type";
 
-export const localLoginAPI = (data: ILoginRequest) => {
+export const localLoginAPI = (data: ILoginRequest): Promise<IBackendRes<ILoginResponse>>  => {
     const urlBackend = '/api/v1/auth/login/local'
-    return clientApi.post<ILoginResponse>(urlBackend, data)
+    return clientApi.post(urlBackend, data)
 }
 
 export const registerAPI = (data: IRegisterRequest) => {
     const urlBackend = '/api/v1/auth/register'
-    return clientApi.post<IRegisterResponse>(urlBackend, data)
+    return clientApi.post<IBackendRes<IRegisterResponse>>(urlBackend, data)
 }
 
 export const logoutAPI = () => {
@@ -16,17 +17,17 @@ export const logoutAPI = () => {
 };
 
 export const getAccountAPI = () => {
-  return clientApi.get<IRegisterResponse>("/api/v1/auth/account");
+  return clientApi.get<IBackendRes<IRegisterResponse>>("/api/v1/auth/account");
 };
 
 export const loginGoogleAPI = (googleToken: string) => {
-  return clientApi.post<ILoginResponse>("/api/v1/auth/login/google", {
+  return clientApi.post<IBackendRes<ILoginResponse>>("/api/v1/auth/login/google", {
     token: googleToken,
   });
 };
 
 export const refreshTokenAPI = (data: IRefreshTokenRequest) => {
-  return clientApi.post<IRefreshTokenResponse>("/api/v1/auth/refresh", data);
+  return clientApi.post<IBackendRes<IRefreshTokenResponse>>("/api/v1/auth/refresh", data);
 };
 
 export const forgotPasswordAPI = (data: IForgotPasswordRequest) => {
