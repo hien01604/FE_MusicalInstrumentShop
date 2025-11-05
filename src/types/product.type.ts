@@ -44,3 +44,14 @@ export interface IPaginatedData<T> {
     entitySlug: string;
     entityType: 'brand' | 'category'; 
 }
+
+export interface ICategoryItem {
+  id: number;
+  name: string;
+  slug: string;
+  parent_id: number | null;
+}
+
+export interface IParentCategory extends ICategoryItem {
+  subcategories: ICategoryItem[];
+}

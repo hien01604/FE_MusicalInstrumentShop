@@ -63,7 +63,7 @@ const BrandDrawer: React.FC<BrandDrawerProps> = ({ open, onClose }) => {
   
   const handleSelectBrand = (brandSlug: string) => {
     onClose();
-    navigate(`product/brand/${brandSlug}`);
+    navigate(`products/brands/${brandSlug}`);
   };
 
   return (

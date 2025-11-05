@@ -1,8 +1,8 @@
+import type { IProduct } from "../types/product.type";
 import ProductCard from "./ProductCard";
-import type { RawProductData } from "./ProductCard";
 
 interface ProductListGridProps {
-  products: RawProductData[];
+  products: IProduct[];
 }
 
 export default function ProductListGrid({ products }: ProductListGridProps) {

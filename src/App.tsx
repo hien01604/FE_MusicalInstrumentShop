@@ -24,8 +24,9 @@ function App() {
           <Route path="/login" element={<LoginPage />} />
           <Route path="/signup" element={<SignupPage />} />
           <Route path="/about-us" element={<AboutUsPage />} />
-          <Route path="/product/brand/:slug" element={<ProductPage />} />
-          <Route path="/product/:id" element={<ProductDetailPage />} />
+          <Route path="/products/brands/:slug" element={<ProductPage />} />
+          <Route path="/products/categories/:slug" element={<ProductPage />}/>
+          <Route path="/products/:slug" element={<ProductDetailPage />} />
           <Route path="/delivery-information" element={<DeliveryInfoPage />} />
           <Route path="/privacy-policy" element={<PrivacyPolicyPage />} />
           <Route path="/terms-and-conditions" element={<TermsConditionsPage />} />

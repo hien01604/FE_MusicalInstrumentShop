@@ -1,82 +1,143 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { X, ChevronRight } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { groupCategoriesForMenu } from "../../../utils/categoryUtils"; 
+import type { ICategoryItem, IParentCategory } from "../../../types/product.type";
+import { getAllCategoryAPI } from "../../../services/client/product.api";
 
 interface CategoryDrawerProps {
   open: boolean;
   onClose: () => void;
 }
 
+const fetchCategories = async (): Promise<ICategoryItem[]> => {
+  try {
+    const response = await getAllCategoryAPI();
+    const data = response.data || [];
+    return data;
+  } catch (error) {
+    console.error("Lỗi khi gọi API danh mục:", error);
+    return [];
+  }
+};
+
+
 const CategoryDrawer: React.FC<CategoryDrawerProps> = ({ open, onClose }) => {
-  const navigate = useNavigate();
+    const navigate = useNavigate();
 
-  const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
+    const [groupedCategories, setGroupedCategories] = useState<IParentCategory[]>([]);
+    const [activeParent, setActiveParent] = useState<IParentCategory | null>(null);
+    const [loading, setLoading] = useState(true);
 
-  const handleNavigate = (slug: string) => {
-    onClose();
-    navigate(`/category/${slug}`);
-  };
+    useEffect(() => {
+        if (open && groupedCategories.length === 0) {
+            setLoading(true);
+            fetchCategories()
+                .then(flatData => {
+                    const grouped = groupCategoriesForMenu(flatData); 
+                    setGroupedCategories(grouped);
+                    if (grouped.length > 0) {
+                        setActiveParent(grouped[0]);
+                    }
+                })
+                .catch(error => {
+                    console.error("Lỗi khi tải danh mục:", error);
+                })
+                .finally(() => {
+                    setLoading(false);
+                });
+        }
+    }, [open]);
 
-  return (
-    <>
-      {/* Overlay */}
-      <div
-        className={`fixed inset-0 bg-black/40 z-40 transition-opacity duration-300 ${
-          open ? "opacity-100 visible" : "opacity-0 invisible"
-        }`}
-        onClick={onClose}
-      />
+    const handleNavigate = (slug: string) => {
+        onClose();
+        navigate(`/products/categories/${slug}`);
+    };
 
-      {/* Drawer chính */}
-      <div
-        className={`fixed top-0 left-0 h-full w-[800px] bg-white shadow-xl z-50 transform transition-transform duration-300 ${
-          open ? "translate-x-0" : "-translate-x-full"
-        }`}
-      >
-        {/* Header */}
-        <div className="flex items-center justify-between p-4 border-b border-gray-200">
-          <h2 className="text-lg font-semibold text-gray-800">All Categories</h2>
-          <button onClick={onClose} className="text-gray-500 hover:text-black transition">
-            <X size={20} />
-          </button>
-        </div>
+    const handleActivateParent = (parent: IParentCategory) => {
+        setActiveParent(parent);
+    };
 
-        {/* Hai cột layout */}
-        <div className="flex h-[calc(100%-60px)]">
-          {/* Cột trái — All Categories */}
-          <div className="w-1/2 border-r border-gray-200 p-4 overflow-y-auto">
-            <div className="text-gray-400 italic text-sm p-3 bg-gray-50 rounded-md border border-dashed border-gray-200">
-              Category list will appear here...
-            </div>
-          </div>
+    return (
+        <>
+            <div
+                className={`fixed inset-0 bg-black/40 z-40 transition-opacity duration-300 ${
+                    open ? "opacity-100 visible" : "opacity-0 invisible"
+                }`}
+                onClick={onClose}
+            />
 
-          {/* Cột phải — Subcategories */}
-          <div className="w-1/2 p-4 bg-gray-50 overflow-y-auto">
-            {selectedCategory ? (
-              <>
-                <h3 className="text-sm font-semibold mb-3 text-gray-700">
-                  Subcategories
-                </h3>
-                <div className="flex flex-col gap-2">
-                  <button
-                    onClick={() => handleNavigate("example")}
-                    className="flex justify-between items-center text-left py-2 px-2 rounded hover:bg-white hover:shadow-sm transition text-gray-700"
-                  >
-                    <span>Example subcategory...</span>
-                    <ChevronRight size={16} className="text-gray-400" />
-                  </button>
+            <div
+                className={`fixed top-0 left-0 h-full w-[800px] bg-white shadow-xl z-50 transform transition-transform duration-300 ${
+                    open ? "translate-x-0" : "-translate-x-full"
+                }`}
+            >
+                <div className="flex items-center justify-between p-4 border-b border-gray-200">
+                    <h2 className="text-lg font-semibold text-gray-800">All Categories</h2>
+                    <button onClick={onClose} className="text-gray-500 hover:text-black transition">
+                        <X size={20} />
+                    </button>
                 </div>
-              </>
-            ) : (
-              <div className="text-gray-400 italic text-sm p-3 bg-gray-50 rounded-md border border-dashed border-gray-200">
-                Select a category to view its subcategories...
-              </div>
-            )}
-          </div>
-        </div>
-      </div>
-    </>
-  );
+
+                <div className="flex h-[calc(100%-60px)]">
+                    
+                    <div className="w-1/2 border-r border-gray-200 p-4 overflow-y-auto">
+                        {loading && (
+                            <div className="text-center p-4 text-gray-500">Đang tải danh mục...</div>
+                        )}
+                        {!loading && groupedCategories.length > 0 ? (
+                            <div className="flex flex-col gap-1">
+                                {groupedCategories.map(parent => (
+                                    <div
+                                        key={parent.id}
+                                        onMouseEnter={() => setActiveParent(parent)}
+                                        onClick={() => handleActivateParent(parent)}
+                                        className={`flex justify-between items-center py-2 px-3 rounded-md cursor-pointer transition 
+                                            ${activeParent?.id === parent.id 
+                                                ? 'bg-orange-50 text-orange-700 font-semibold' 
+                                                : 'hover:bg-gray-100 text-gray-700'
+                                            }`}
+                                    >
+                                        <span>{parent.name}</span>
+                                        <ChevronRight size={16} className="text-gray-400" />
+                                    </div>
+                                ))}
+                            </div>
+                        ) : !loading && (
+                            <div className="text-gray-400 italic text-sm p-3 bg-gray-50 rounded-md border border-dashed border-gray-200">
+                                Không tìm thấy danh mục nào.
+                            </div>
+                        )}
+                    </div>
+
+                    <div className="w-1/2 p-4 bg-gray-50 overflow-y-auto">
+                        {activeParent && (
+                            <>
+                                <div className="flex flex-col gap-2">
+                                    {activeParent.subcategories.length > 0 ? (
+                                        activeParent.subcategories.map(sub => (
+                                            <button
+                                                key={sub.id}
+                                                onClick={() => handleNavigate(sub.slug)}
+                                                className="flex justify-between items-center text-left py-2 px-2 rounded hover:bg-white hover:shadow-sm transition text-gray-700"
+                                            >
+                                                <span>{sub.name}</span>
+                                                <ChevronRight size={16} className="text-gray-400" />
+                                            </button>
+                                        ))
+                                    ) : (
+                                        <div className="text-gray-400 italic text-sm p-3 rounded-md border border-dashed border-gray-200">
+                                            Không có danh mục con cho mục này.
+                                        </div>
+                                    )}
+                                </div>
+                            </>
+                        )}
+                    </div>
+                </div>
+            </div>
+        </>
+    );
 };
 
 export default CategoryDrawer;
