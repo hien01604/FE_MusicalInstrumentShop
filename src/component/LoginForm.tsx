@@ -6,6 +6,10 @@ import { useState } from "react";
 import { googleLoginAPI, localLoginAPI } from "../services/client/auth.api";
 import type { IGoogleLoginRequest, IGoogleLoginResponse, ILoginRequest, ILoginResponse } from "../types/auth.type";
 import type { IBackendRes } from "../types/common.type";
+import { useAuth } from "../context/AuthContext";
+import type { CartItem, IInitialCartSyncRequest, IInitialCartSyncResponse } from "../types/cart.type";
+import { initialCartSyncAPI } from "../services/client/cart.api";
+import { useCart } from "../context/CartContext"; 
 
 export default function LoginForm() {
     const [email, setEmail] = useState("");
@@ -13,22 +17,47 @@ export default function LoginForm() {
     const [rememberMe, setRememberMe] = useState(false);
     const [error, setError] = useState<string | null>(null);
     const navigate = useNavigate();
+    const { login } = useAuth();
+    const { setCart } = useCart(); 
+
+    const handleInitialCartSync = async () => {
+        const guestCartJson = localStorage.getItem('guest_cart');
+        
+        const guestCartItems: {productId: number, quantity: number}[] = JSON.parse(guestCartJson || '[]').map((item: CartItem) => ({
+            productId: item.productId,
+            quantity: item.quantity,
+        }));
+        
+        if (guestCartItems.length === 0) return;
+
+        try {
+            const payload: IInitialCartSyncRequest = { guest_cart_items: guestCartItems };
+            const response: IBackendRes<IInitialCartSyncResponse> = await initialCartSyncAPI(payload);
+            
+            if (response.data) {
+                const data: IInitialCartSyncResponse = response.data;
+                
+                localStorage.removeItem('guest_cart'); 
+                setCart(data.cart_items); 
+            }
+        } catch (err: any) {
+            console.error("Đồng bộ giỏ hàng thất bại:", err);
+        }
+    }
 
     const haddleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
+        setError(null); 
         const loginPayload: ILoginRequest = { email, password, rememberMe };
         try {
             const response = await localLoginAPI(loginPayload);
             if (response.data) {
                 const data: ILoginResponse = response.data;
-                if (rememberMe) {
-                    localStorage.setItem("access_token", data.access_token);
-                    localStorage.setItem("refresh_token", data.refresh_token);
-                }
-                else {
-                    sessionStorage.setItem("access_token", data.access_token);
-                    sessionStorage.setItem("refresh_token", data.refresh_token);
-                }
+                
+                login(data.access_token, data.refresh_token, rememberMe, data.user);
+                
+                await handleInitialCartSync();
+                
                 navigate("/");
             }
             else {
@@ -36,48 +65,53 @@ export default function LoginForm() {
             }
         }
         catch (err: any) {
-            setError(err.message);
-            console.error("Google login error:", error);
+            const errorMessage = err?.response?.data?.message || err?.message || "Đăng nhập thất bại.";
+            setError(errorMessage);
+            console.error("Local login error:", err);
         }
     }
 
     const handleGoogleLogin = useGoogleLogin({
         flow: 'auth-code',
         onSuccess: async tokenResponse => {
-            console.log('Google login success:', tokenResponse.code);
             const tokenRequest:IGoogleLoginRequest = { code: tokenResponse.code };
             try {
                 const response: IBackendRes<IGoogleLoginResponse> = await googleLoginAPI(tokenRequest);
+                
                 if (response.error || !response.data) {
-                    console.error("Error:", response.message);
-                    alert(response.message);
+                    const errorMessage = response.message || "Đăng nhập Google thất bại.";
+                    setError(errorMessage);
+                    alert(errorMessage);
                     return;
                 }
+                
                 const data: IGoogleLoginResponse = response.data;
-                localStorage.setItem('user', JSON.stringify({
-                    access_token: data?.access_token,
-                    refresh_token: data?.refresh_token,
-                    user: data?.user
-                }
-                ));
+                login(data.access_token, data.refresh_token, false, data.user); 
+                
+                await handleInitialCartSync();
+                
                 navigate('/');
             }
             catch (err: any) {
-                setError(err.message);
-                console.error("Google login error:", error);
+                const errorMessage = err?.message || "Lỗi kết nối đến Google API.";
+                setError(errorMessage);
+                console.error("Google login error:", err);
             }
         },
         onError: error => {
             console.log('Google login failed:', error);
+            setError("Đăng nhập Google bị hủy hoặc thất bại.");
         },
     });
+    
     return (
         <div className="flex justify-center items-center p-4 "> 
             
             <form className="w-full max-w-md p-8 space-y-6 bg-white border border-gray-200 rounded-xl shadow-xl"
                 onSubmit={haddleSubmit}
             >
-                
+                {error && <div className="p-3 text-sm text-red-700 bg-red-100 rounded-lg">{error}</div>}
+
                 <InputField
                     label="Email Address"
                     required
@@ -134,6 +168,7 @@ export default function LoginForm() {
                 <div className="mt-4 space-y-4">
                 <button
                     onClick={() => handleGoogleLogin()}
+                    type="button" 
                     className="w-full flex items-center justify-center py-3 px-4 border border-gray-300 rounded-lg hover:bg-gray-50"
                 >
                     <FcGoogle className="w-6 h-6 mr-3" />

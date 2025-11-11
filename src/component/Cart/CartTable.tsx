@@ -1,6 +1,7 @@
 import React from "react";
 import CartItemRow from "./CartItemRow";
-import type { CartItem } from "../../context/CartContext";
+import type { CartItem } from "../../types/cart.type";
+
 
 interface Props {
   items: CartItem[];
@@ -23,11 +24,11 @@ const CartTable: React.FC<Props> = ({ items, onIncrease, onDecrease, onRemove })
     <tbody>
       {items.map((item) => (
         <CartItemRow
-          key={item.id}
+          key={item.productId}
           item={item}
-          onIncrease={() => onIncrease(item.id)}
-          onDecrease={() => onDecrease(item.id)}
-          onRemove={() => onRemove(item.id)}
+          onIncrease={() => onIncrease(item.productId)}
+          onDecrease={() => onDecrease(item.productId)}
+          onRemove={() => onRemove(item.productId)}
         />
       ))}
     </tbody>

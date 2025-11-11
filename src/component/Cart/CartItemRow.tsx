@@ -1,6 +1,6 @@
 import React from "react";
 import { Plus, Minus, Trash2 } from "lucide-react";
-import type { CartItem } from "../../context/CartContext";
+import type { CartItem } from "../../types/cart.type";
 
 interface Props {
   item: CartItem;
@@ -10,19 +10,25 @@ interface Props {
 }
 
 const CartItemRow: React.FC<Props> = ({ item, onIncrease, onDecrease, onRemove }) => {
-  // ✅ Tách phần số ra từ chuỗi "16.830.000₫"
-  const numericPrice = parseFloat(item.price.replace(/[^\d]/g, "")) || 0;
+  const product = item.product;
+
+  // Đảm bảo giá trị hiển thị là một chuỗi an toàn
+  const priceDisplayString = product?.price_display || '0'; 
+
+  // Tách phần số ra từ chuỗi "16.830.000₫"
+   // (Đã thêm optional chaining và giá trị mặc định để tránh lỗi 'Cannot read properties of undefined (reading 'replace')')
+  const numericPrice = parseFloat(priceDisplayString.replace(/[^\d]/g, "")) || 0;
   const total = numericPrice * item.quantity;
 
   return (
     <tr className="border-t border-[#E7D7A7]">
       <td className="p-4 flex items-center gap-3">
-        <img src={item.image} alt={item.name} className="w-14 h-14 rounded-lg object-cover" />
-        <span>{item.name}</span>
+        <img src={product?.main_image?.image_url} alt={product?.product_name} className="w-14 h-14 rounded-lg object-cover" />
+        <span>{product?.product_name}</span>
       </td>
 
       {/* ✅ Hiển thị đúng giá gốc */}
-      <td className="p-4">{item.price}</td>
+      <td className="p-4">{product?.price_display}</td>
 
       {/* ✅ Số lượng */}
       <td className="p-4">

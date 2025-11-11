@@ -5,6 +5,7 @@ import FAQSection from "./FAQSection";
 import { ShoppingCart, Heart } from "lucide-react";
 import { useCart } from "../../context/CartContext";
 import type { IProduct } from "../../types/product.type";
+import type { CartItem, ICartProductMinimal } from "../../types/cart.type";
 
 
 const ProductDetailMain: React.FC<{ product: IProduct }> = ({ product }) => {
@@ -12,17 +13,26 @@ const ProductDetailMain: React.FC<{ product: IProduct }> = ({ product }) => {
   
   const isAvailable = product.stock_quantity > 0;
   
-  const mainImage =
-    product.images?.find(img => img.is_main)?.image_url ||
-    product.images?.[0]?.image_url ||
-    "/default-image.png";
+  // Lấy đối tượng ảnh chính và URL để cấu trúc dữ liệu giỏ hàng
+  const mainImageObject = product.images?.find(img => img.is_main) || product.images?.[0];
+  const mainImageUrl = mainImageObject?.image_url || "/default-image.png";
 
-  const cartProduct = {
+  // 🔥 1. Xây dựng đối tượng ICartProductMinimal
+  const productMinimal: ICartProductMinimal = {
     id: product.id,
-    name: product.product_name,
-    price: product.price_numeric, 
-    image: mainImage,
-    quantity: 1,
+    product_name: product.product_name,
+    slug: product.slug || 'default-slug', 
+    price_display: product.price_display,
+    price_numeric: product.price_numeric.toString(), // Phải là string
+    stock_quantity: product.stock_quantity,
+    main_image: mainImageObject || { id: 0, image_url: mainImageUrl, is_main: true }, 
+  };
+
+  // 🔥 2. Cấu trúc đối tượng CartItem hoàn chỉnh (sử dụng tên biến bạn đã gọi là cartItem)
+  const cartItem: CartItem = {
+    productId: product.id, // Thuộc tính BẮT BUỘC
+    quantity: 1, 
+    product: productMinimal, // Đối tượng lồng ICartProductMinimal
   };
 
   return (
@@ -49,7 +59,7 @@ const ProductDetailMain: React.FC<{ product: IProduct }> = ({ product }) => {
               <button
                 onClick={() => {
                   console.log("🧩 Clicked Add to Cart");
-                  addToCart(cartProduct);
+                  addToCart(cartItem);
                 }}
                 disabled={!isAvailable}
                 className={`flex items-center gap-2 py-2 px-5 rounded-lg transition ${

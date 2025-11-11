@@ -1,15 +1,9 @@
-import React, { createContext, useContext, useState, type ReactNode } from "react";
-
-export interface CartItem {
-  id: number;
-  name: string;
-  price: string;
-  image: string;
-  quantity: number;
-}
+import React, { createContext, useContext, useState, type ReactNode, useEffect, type Dispatch, type SetStateAction } from "react";
+import type { CartItem } from "../types/cart.type"; 
 
 interface CartContextType {
   cart: CartItem[];
+  setCart: Dispatch<SetStateAction<CartItem[]>>; // 🔥 Thêm setCart để cho LoginForm cập nhật giỏ hàng sau khi sync
   addToCart: (item: CartItem) => void;
   removeFromCart: (id: number) => void;
   updateQuantity: (id: number, quantity: number) => void;
@@ -18,6 +12,19 @@ interface CartContextType {
 
 const CartContext = createContext<CartContextType | undefined>(undefined);
 
+const getInitialCart = (): CartItem[] => {
+    const cartJson = localStorage.getItem('guest_cart');
+    if (cartJson) {
+        try {
+            return JSON.parse(cartJson) as CartItem[];
+        } catch (e) {
+            console.error("Lỗi khi phân tích Giỏ hàng Khách từ Local Storage:", e);
+            return [];
+        }
+    }
+    return [];
+}
+
 export const useCart = () => {
   const context = useContext(CartContext);
   if (!context) throw new Error("useCart must be used within CartProvider");
@@ -25,32 +32,42 @@ export const useCart = () => {
 };
 
 export const CartProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
-  const [cart, setCart] = useState<CartItem[]>([]);
+  // 🔥 Khởi tạo state bằng dữ liệu từ Local Storage
+  const [cart, setCart] = useState<CartItem[]>(getInitialCart());
+
+    // 🔥 2. Effect để lưu Giỏ hàng vào Local Storage (Guest Cart) mỗi khi state 'cart' thay đổi
+    useEffect(() => {
+        // Lưu trữ Giỏ hàng hiện tại vào Local Storage (guest_cart)
+        // Logic này đảm bảo giỏ hàng được lưu khi người dùng là khách,
+        // hoặc khi họ đăng xuất.
+        localStorage.setItem('guest_cart', JSON.stringify(cart));
+    }, [cart]);
+
 
   const addToCart = (item: CartItem) => {
-    console.log("🛒 Add to cart called with:", item);
     setCart((prev) => {
-      const existing = prev.find((p) => p.id === item.id);
+      const existing = prev.find((p) => p.productId === item.productId);
       if (existing) {
         return prev.map((p) =>
-          p.id === item.id ? { ...p, quantity: p.quantity + item.quantity } : p
+          p.productId === item.productId ? { ...p, quantity: p.quantity + item.quantity } : p
         );
       }
       return [...prev, item];
     });
   };
 
-  const removeFromCart = (id: number) => setCart((prev) => prev.filter((p) => p.id !== id));
+  const removeFromCart = (id: number) => setCart((prev) => prev.filter((p) => p.productId !== id));
 
   const updateQuantity = (id: number, quantity: number) =>
     setCart((prev) =>
-      prev.map((p) => (p.id === id ? { ...p, quantity: Math.max(1, quantity) } : p))
+      prev.map((p) => (p.productId === id ? { ...p, quantity: Math.max(1, quantity) } : p))
     );
 
   const clearCart = () => setCart([]);
 
   return (
-    <CartContext.Provider value={{ cart, addToCart, removeFromCart, updateQuantity, clearCart }}>
+    // 🔥 Truyền cả hàm setCart ra ngoài để LoginForm có thể cập nhật
+    <CartContext.Provider value={{ cart, setCart, addToCart, removeFromCart, updateQuantity, clearCart }}>
       {children}
     </CartContext.Provider>
   );

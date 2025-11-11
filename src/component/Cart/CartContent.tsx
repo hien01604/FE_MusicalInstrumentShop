@@ -2,6 +2,7 @@ import React from "react";
 import { useCart } from "../../context/CartContext";
 import CartTable from "./CartTable";
 import CartSummary from "./CartSummary";
+// 🔥 Bạn có thể thêm import hàm formatCurrency nếu bạn có
 
 /**
  * CartContent
@@ -11,11 +12,15 @@ import CartSummary from "./CartSummary";
 const CartContent: React.FC = () => {
   const { cart, removeFromCart, updateQuantity, clearCart } = useCart();
 
-  // Tính tổng tiền (vì price là chuỗi kiểu "16.830.000₫")
+  // Tính tổng tiền
   const total = cart.reduce((sum, item) => {
-    const numericPrice = parseFloat(item.price.replace(/[^\d]/g, "")) || 0;
+    // 🔥 SỬ DỤNG price_numeric (được giả định là chuỗi số đơn giản, ví dụ: "2800000")
+    // và đảm bảo rằng product không bị undefined
+    const priceString = item.product?.price_numeric || "0";
+    const numericPrice = parseFloat(priceString) || 0;
+
     return sum + numericPrice * item.quantity;
-  }, 0);
+}, 0);
 
   // Nếu giỏ hàng trống
   if (cart.length === 0) {
@@ -32,18 +37,26 @@ const CartContent: React.FC = () => {
       {/* Bảng danh sách sản phẩm */}
       <CartTable
         items={cart}
-        onIncrease={(id) =>
-          updateQuantity(
-            id,
-            cart.find((i) => i.id === id)!.quantity + 1
-          )
-        }
-        onDecrease={(id) =>
-          updateQuantity(
-            id,
-            cart.find((i) => i.id === id)!.quantity - 1
-          )
-        }
+        onIncrease={(productId) => { // Đổi id thành productId để rõ ràng
+          // Tìm sản phẩm (KHÔNG DÙNG !)
+          const item = cart.find((i) => i.productId === productId);
+          // 🔥 Kiểm tra nếu tìm thấy, thì cập nhật số lượng
+          if (item) {
+            updateQuantity(productId, item.quantity + 1);
+          }
+        }}
+        onDecrease={(productId) => { // Đổi id thành productId để rõ ràng
+          // Tìm sản phẩm (KHÔNG DÙNG !)
+          const item = cart.find((i) => i.productId === productId);
+          
+          // 🔥 Kiểm tra nếu tìm thấy VÀ số lượng > 1, thì giảm số lượng
+          if (item && item.quantity > 1) {
+            updateQuantity(productId, item.quantity - 1);
+          } else if (item && item.quantity === 1) {
+            // Tùy chọn: Xóa sản phẩm nếu số lượng về 0/1
+            removeFromCart(productId);
+          }
+        }}
         onRemove={removeFromCart}
       />
 
