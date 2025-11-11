@@ -3,7 +3,7 @@ import type { CartItem } from "../types/cart.type";
 
 interface CartContextType {
   cart: CartItem[];
-  setCart: Dispatch<SetStateAction<CartItem[]>>; // 🔥 Thêm setCart để cho LoginForm cập nhật giỏ hàng sau khi sync
+  setCart: Dispatch<SetStateAction<CartItem[]>>; // Thêm setCart để cho LoginForm cập nhật giỏ hàng sau khi sync
   addToCart: (item: CartItem) => void;
   removeFromCart: (id: number) => void;
   updateQuantity: (id: number, quantity: number) => void;
@@ -32,10 +32,10 @@ export const useCart = () => {
 };
 
 export const CartProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
-  // 🔥 Khởi tạo state bằng dữ liệu từ Local Storage
+  //  Khởi tạo state bằng dữ liệu từ Local Storage
   const [cart, setCart] = useState<CartItem[]>(getInitialCart());
 
-    // 🔥 2. Effect để lưu Giỏ hàng vào Local Storage (Guest Cart) mỗi khi state 'cart' thay đổi
+    //  2. Effect để lưu Giỏ hàng vào Local Storage (Guest Cart) mỗi khi state 'cart' thay đổi
     useEffect(() => {
         // Lưu trữ Giỏ hàng hiện tại vào Local Storage (guest_cart)
         // Logic này đảm bảo giỏ hàng được lưu khi người dùng là khách,
@@ -66,7 +66,7 @@ export const CartProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   const clearCart = () => setCart([]);
 
   return (
-    // 🔥 Truyền cả hàm setCart ra ngoài để LoginForm có thể cập nhật
+    // Truyền cả hàm setCart ra ngoài để LoginForm có thể cập nhật
     <CartContext.Provider value={{ cart, setCart, addToCart, removeFromCart, updateQuantity, clearCart }}>
       {children}
     </CartContext.Provider>
