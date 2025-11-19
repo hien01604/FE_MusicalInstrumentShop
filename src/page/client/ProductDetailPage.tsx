@@ -28,8 +28,8 @@ const ProductDetailPage: React.FC = () => {
       }
       try {
         const response = await getDetailProductAPI(slug);
-        if (response.data) {
-          setProduct(response.data);         
+        if (response) {
+          setProduct(response);         
         } else {          
           setError('Không tìm thấy sản phẩm.');          
           setProduct(undefined);

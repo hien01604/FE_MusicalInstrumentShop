@@ -7,13 +7,13 @@ export interface ICartProductMinimal {
     price_display: string;
     price_numeric: string;
     stock_quantity: number;
-    main_image: IProductImage; 
+    main_image: IProductImage;
 }
 
 export interface CartItem {
     productId: number;
     quantity: number;
-    product?: ICartProductMinimal; 
+    product?: ICartProductMinimal;
 }
 
 export interface IInitialCartSyncRequest {
@@ -24,5 +24,24 @@ export interface IInitialCartSyncRequest {
 }
 
 export interface IInitialCartSyncResponse {
+    cart_items: CartItem[];
+}
+
+export interface IAddUpdateCartItemRequest {
+    productId: number;
+    quantity: number;
+}
+
+export interface IUpdateQuantityRequest {
+    quantity: number;
+}
+
+// Response chung cho các API CRUD (GET, POST, PATCH, DELETE) ---
+// Server luôn trả về giỏ hàng mới nhất sau khi thao tác
+export interface ICartResponse {
+    data: ICartData
+}
+
+export interface ICartData {
     cart_items: CartItem[];
 }

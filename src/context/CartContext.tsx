@@ -1,5 +1,7 @@
 import React, { createContext, useContext, useState, type ReactNode, useEffect, type Dispatch, type SetStateAction } from "react";
 import type { CartItem } from "../types/cart.type"; 
+import { useAuth } from "./AuthContext";
+import { addOrUpdateCartItemAPI, clearAllCartItemsAPI, getCartAPI, removeCartItemAPI, updateCartItemQuantityAPI } from "../services/client/cart.api";
 
 interface CartContextType {
   cart: CartItem[];
@@ -34,36 +36,130 @@ export const useCart = () => {
 export const CartProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   //  Khởi tạo state bằng dữ liệu từ Local Storage
   const [cart, setCart] = useState<CartItem[]>(getInitialCart());
+  const { isLoggedIn } = useAuth();
 
-    //  2. Effect để lưu Giỏ hàng vào Local Storage (Guest Cart) mỗi khi state 'cart' thay đổi
     useEffect(() => {
-        // Lưu trữ Giỏ hàng hiện tại vào Local Storage (guest_cart)
-        // Logic này đảm bảo giỏ hàng được lưu khi người dùng là khách,
-        // hoặc khi họ đăng xuất.
-        localStorage.setItem('guest_cart', JSON.stringify(cart));
-    }, [cart]);
+        const loadServerCart = async () => {
+            try {
+                const response = await getCartAPI();
+                if (response.data) {
+                    setCart(response.data.cart_items);
+                    console.log("Chay ne")
+                    console.log(response.data.cart_items)
+                    // Xóa giỏ hàng khách cũ sau khi đã sync hoặc load thành công
+                    localStorage.removeItem('guest_cart');
+                } else {
+                    setCart([]);
+                }
+            } catch (err) {
+                console.error("Lỗi tải giỏ hàng từ Server:", err);
+                // Nếu lỗi 401/Network, giữ lại cart hiện tại hoặc set rỗng
+                setCart([]);
+            }
+        };
+
+        if (isLoggedIn) {
+            loadServerCart();
+        }
+    }, [isLoggedIn, setCart]); //Chỉ chạy khi isLoggedIn thay đổi
+
+    useEffect(() => {
+        if (!isLoggedIn) {
+            // Nếu là khách, lưu cart hiện tại vào Local Storage
+            localStorage.setItem('guest_cart', JSON.stringify(cart));
+        }
+    }, [cart, isLoggedIn]);
 
 
-  const addToCart = (item: CartItem) => {
-    setCart((prev) => {
-      const existing = prev.find((p) => p.productId === item.productId);
-      if (existing) {
-        return prev.map((p) =>
-          p.productId === item.productId ? { ...p, quantity: p.quantity + item.quantity } : p
-        );
-      }
-      return [...prev, item];
-    });
+  const addToCart = async (item: CartItem) => {
+    if (isLoggedIn) {
+            // Đã đăng nhập: Gửi request đến Backend (sẽ tương tác Redis)
+            const { productId, quantity } = item;
+            try {
+                const response = await addOrUpdateCartItemAPI({ productId, quantity });
+                if (response.data) {
+                    setCart(response.data.cart_items); // Cập nhật state bằng dữ liệu trả về từ Server
+                }
+            } catch (error) {
+                console.error("Lỗi khi thêm sản phẩm vào Server Cart:", error);
+            }
+        } else {
+            // Khách: Logic cũ (cập nhật Local Storage)
+            setCart((prev) => {
+            const existing = prev.find((p) => p.productId === item.productId);
+                        
+            if (existing) {
+                    return prev.map((p) =>
+                        p.productId === item.productId 
+                        // Lưu ý: cộng quantity
+                        ? { ...p, quantity: p.quantity + item.quantity } 
+                        : p
+                    );
+            }
+            
+            // Nếu chưa tồn tại, thêm item MỚI (đầy đủ) vào mảng
+            // Vì 'item' đã chứa 'product' bên trong, chúng ta chỉ cần thêm nó vào
+            return [...prev, item]; 
+            });
+        }
   };
 
-  const removeFromCart = (id: number) => setCart((prev) => prev.filter((p) => p.productId !== id));
+  const removeFromCart = async (id: number) => {
+    if (isLoggedIn) {
+            // Đã đăng nhập: Gửi request đến Backend
+            try {
+                // Giả định removeCartItemAPI dùng DELETE /v1/cart/:id
+                const response = await removeCartItemAPI(id);
+                if (response.data) {
+                    setCart(response.data.cart_items); // Cập nhật state bằng dữ liệu trả về từ Server
+                }
+            } catch (error) {
+                console.error("Lỗi khi xóa sản phẩm khỏi Server Cart:", error);
+            }
+        } else {
+            // Khách: Logic cũ
+            setCart((prev) => prev.filter((p) => p.productId !== id));
+        }
+  }
 
-  const updateQuantity = (id: number, quantity: number) =>
-    setCart((prev) =>
-      prev.map((p) => (p.productId === id ? { ...p, quantity: Math.max(1, quantity) } : p))
-    );
+  const updateQuantity = async (id: number, quantity: number) => {
+    const safeQuantity = Math.max(1, quantity);
 
-  const clearCart = () => setCart([]);
+        if (isLoggedIn) {
+            try {
+                const response = await updateCartItemQuantityAPI(id, safeQuantity);
+                if (response) {
+                    setCart(response.data.cart_items); 
+                }
+            } catch (error) {
+                console.error("Lỗi khi cập nhật số lượng Server Cart:", error);
+            }
+        } else {
+            // Khách: Logic cũ
+            setCart((prev) =>
+                prev.map((p) => (p.productId === id ? { ...p, quantity: safeQuantity } : p))
+            );
+        }
+  }
+
+  const clearCart = async () => {
+    if (isLoggedIn) {
+             try {
+                const response = await clearAllCartItemsAPI();
+                if (response.data) {
+                    // Backend trả về giỏ hàng rỗng (items: [])
+                    setCart(response.data.cart_items); 
+                }
+            } catch (error) {
+                console.error("Lỗi khi xóa toàn bộ giỏ hàng Server:", error);
+                // Vẫn xóa state Frontend để người dùng có thể thử lại
+                setCart([]);
+            }
+        }
+    else {
+      setCart([])
+    }
+  }
 
   return (
     // Truyền cả hàm setCart ra ngoài để LoginForm có thể cập nhật

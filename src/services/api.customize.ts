@@ -24,7 +24,13 @@ export function createApi({
   );
 
   api.interceptors.response.use(
-    (res) => (res && res.data ? res.data : res),
+    (res) => {
+      if (res?.data) {
+        const apiResponse = res.data;
+        return apiResponse.data || apiResponse;
+      }
+      return res;
+    },
     (err) => {
       if (err?.response?.status === 401 && onUnauthorized) {
         onUnauthorized();
@@ -39,7 +45,15 @@ export function createApi({
 
 export const clientApi = createApi({
   baseURL: import.meta.env.VITE_BACKEND_URL,
-  getToken: () => localStorage.getItem("access_token"),
+  getToken: () => {
+    const localToken = localStorage.getItem("access_token");
+    if (localToken) return localToken;
+    
+    const sessionToken = sessionStorage.getItem("access_token");
+    if (sessionToken) return sessionToken;
+
+    return null;
+  },
   onUnauthorized: () => {
     // window.location.href = "/login";
   },

@@ -24,7 +24,7 @@ export default function ProductPage() {
       if (isBrandRoute) {
       const response = await getBrandBySlugAPI(slug!);
       if (response.data) {
-        const data: IPaginatedData<IProduct> = response.data;
+        const data: IPaginatedData<IProduct> = response;
         setProducts(data.data);
         console.log("Products by brand:", data);
       }
@@ -32,7 +32,7 @@ export default function ProductPage() {
       else if (isCategoryRoute) { 
         const response = await getCategoryBySlugAPI(slug!);
         if (response.data) {
-          const data: IPaginatedData<IProduct> = response.data;
+          const data: IPaginatedData<IProduct> = response;
           setProducts(data.data);
           console.log("Products by category:", data);
         }

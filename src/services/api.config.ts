@@ -1,6 +1,7 @@
 import axios, { AxiosError } from "axios";
 import { forceLogout, getRefreshToken } from "../context/AuthContext";
 import { refreshTokenAPI } from "./client/auth.api";
+import type { IRefreshTokenResponse } from "../types/auth.type"; // Cần import kiểu phản hồi
 
 /**
  * Xử lý việc làm mới Access Token và thử lại request bị lỗi.
@@ -15,11 +16,15 @@ export async function handleTokenRefresh(failedRequest: AxiosError) {
     
     try {
         const payload = { refresh_token: refreshToken };
-        const response = await refreshTokenAPI(payload); 
-        const data = response.data.data;
         
-        const newAccessToken = data?.access_token;
-        const newRefreshToken = data?.refresh_token; 
+        // --- CHỈNH SỬA TẠI ĐÂY ---
+        // refreshTokenAPI() giờ trả về trực tiếp IRefreshTokenResponse
+        const response: IRefreshTokenResponse = await refreshTokenAPI(payload); 
+        
+        // Không cần const data = response.data; nữa. Dùng response trực tiếp.
+        
+        const newAccessToken = response?.access_token;
+        const newRefreshToken = response?.refresh_token; 
         
         if (newAccessToken && newRefreshToken) {
             // Cập nhật Token mới (Giả định lưu vào localStorage)
@@ -36,7 +41,8 @@ export async function handleTokenRefresh(failedRequest: AxiosError) {
     } catch (e) {
         console.error("Làm mới token thất bại:", e);
         forceLogout();
-        return Promise.reject(e);
+        // Lỗi e là dữ liệu lỗi (errorData) từ interceptor
+        return Promise.reject(e); 
     }
     
     forceLogout();

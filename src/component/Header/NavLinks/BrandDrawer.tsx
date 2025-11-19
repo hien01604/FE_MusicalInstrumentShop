@@ -12,60 +12,58 @@ interface BrandDrawerProps {
 }
 
 const BrandDrawer: React.FC<BrandDrawerProps> = ({ open, onClose }) => {
-  const navigate = useNavigate();
-  const [brands, setBrands] = useState<IBrand[]>([]);
-  const [groupedBrands, setGroupedBrands] = useState<IGroupedBrand[]>([]);
-  const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+    const navigate = useNavigate();
+    const [brands, setBrands] = useState<IBrand[]>([]);
+    const [groupedBrands, setGroupedBrands] = useState<IGroupedBrand[]>([]);
+    const [isLoading, setIsLoading] = useState(false);
+    const [error, setError] = useState<string | null>(null);
 
-  useEffect(() => {
-    if (open && brands.length === 0) { 
-        
-        const fetchBrands = async () => {
-            setIsLoading(true); 
+    useEffect(() => {
+        if (open && brands.length === 0) { 
+            
+            const fetchBrands = async () => {
+                setIsLoading(true); 
+                setError(null);
 
-            try {
-                const response: IBackendRes<IBrand[]> = await getAllBrandAPI(); 
+                try {
+                    // API trả về IBrand[] trực tiếp nhờ Interceptor
+                    const data: IBrand[] = await getAllBrandAPI(); 
 
-                if (!response.error && response.data) { 
-                    const data: IBrand[] = response.data;
-                    
                     setBrands(data); 
-
+                    
                     const grouped = groupBrandsByInitial(data);
                     setGroupedBrands(grouped); 
                     
                     console.log('Fetched and grouped brands successfully.');
-                } else {
-                  setError(response.message || "Lỗi không xác định khi tải thương hiệu.");
-                  console.error("Error fetching brands:", response.message);
+                } catch (err: any) {
+                    // Lỗi từ Interceptor (ví dụ: lỗi 401, 500,...)
+                    const errorMessage = err?.message || "Đã xảy ra lỗi khi tải thương hiệu.";
+                    setError(errorMessage);
+                    setBrands([]);
+                    setGroupedBrands([]);
+                    console.error("Fetch brands error:", err);
+                } finally {
+                    setIsLoading(false); 
                 }
-            } catch (error) {
-                setError("Đã xảy ra lỗi khi tải thương hiệu.");
-                console.error("Fetch brands error:", error);
-            } finally {
-                setIsLoading(false); 
-            }
-        };
+            };
 
-        fetchBrands();
-    }
-    // Dependency: chạy khi 'open' thay đổi (mở/đóng Drawer) hoặc khi 'brands.length' thay đổi (ví dụ: data được reset)
-}, [open, brands.length]);
+            fetchBrands();
+        }
+    }, [open, brands.length]);
 
-  const handleScrollToInitial = (initial: string) => {
-    const element = document.getElementById(`brand-group-${initial}`); 
+
+    const handleScrollToInitial = (initial: string) => {
+        const element = document.getElementById(`brand-group-${initial}`); 
+        
+        if (element) {
+            element.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+    };
     
-    if (element) {
-      element.scrollIntoView({ behavior: 'smooth', block: 'start' });
-    }
-};
-  
-  const handleSelectBrand = (brandSlug: string) => {
-    onClose();
-    navigate(`products/brands/${brandSlug}`);
-  };
-
+    const handleSelectBrand = (brandSlug: string) => {
+        onClose();
+        navigate(`/products/brands/${brandSlug}`);
+    };
   return (
     <>
       {/* Overlay mờ */}

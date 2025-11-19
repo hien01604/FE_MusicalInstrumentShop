@@ -11,14 +11,16 @@ interface CategoryDrawerProps {
 }
 
 const fetchCategories = async (): Promise<ICategoryItem[]> => {
-  try {
-    const response = await getAllCategoryAPI();
-    const data = response.data || [];
-    return data;
-  } catch (error) {
-    console.error("Lỗi khi gọi API danh mục:", error);
-    return [];
-  }
+    try {
+        // --- CHỈNH SỬA TẠI ĐÂY ---
+        // getAllCategoryAPI() giờ trả về Promise<ICategoryItem[]>, không cần .data
+        const response: ICategoryItem[] = await getAllCategoryAPI();
+        return response || [];
+        
+    } catch (error) {
+        console.error("Lỗi khi gọi API danh mục:", error);
+        return [];
+    }
 };
 
 
@@ -41,6 +43,7 @@ const CategoryDrawer: React.FC<CategoryDrawerProps> = ({ open, onClose }) => {
                     }
                 })
                 .catch(error => {
+                    // Lỗi ở đây sẽ là dữ liệu lỗi (errorData) từ interceptor
                     console.error("Lỗi khi tải danh mục:", error);
                 })
                 .finally(() => {
