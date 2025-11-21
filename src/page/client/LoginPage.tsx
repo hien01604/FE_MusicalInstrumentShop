@@ -2,7 +2,6 @@ import Layout from "../../component/Layout";
 import LoginForm from "../../component/Auth/LoginForm"
 import Header from "../../component/Header/Header";
 import Footer from "../../component/Footer/Footer";
-import React from "react";
 
 export default function LoginPage() {
     return (

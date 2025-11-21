@@ -15,6 +15,7 @@ import ScrollToTop from './component/ScrollToTop';
 import { CartProvider } from './context/CartContext';
 import ForgotPasswordPage from './page/client/ForgotPasswordPage';
 import ResetPasswordPage from './page/client/ResetPasswordPage';
+import CheckoutPage from './page/client/CheckoutPage';
 
 function App() {
   return (
@@ -36,6 +37,8 @@ function App() {
           <Route path="/cart" element={<CartPage />} />
           <Route path="/forgot-password" element={<ForgotPasswordPage />} />
           <Route path="/reset-password" element={<ResetPasswordPage />} />
+          <Route path="/checkout" element={<CheckoutPage />} />
+
 
         </Routes>
       </CartProvider>
