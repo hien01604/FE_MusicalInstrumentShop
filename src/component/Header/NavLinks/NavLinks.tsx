@@ -12,12 +12,11 @@ const NavLinks: React.FC = () => {
       <NavItem label="Category" DrawerComponent={CategoryDrawer} className={baseClasses} />
 
       <NavLink
-        to="/accessories"
+        to="/products/categories/accessories"
         className={({ isActive }) =>
-          `${baseClasses} hover:text-orange-600 ${
-            isActive 
-              ? "border-orange-600 text-orange-700" 
-              : "border-transparent" 
+          `${baseClasses} hover:text-orange-600 ${isActive
+            ? "border-orange-600 text-orange-700"
+            : "border-transparent"
           }`
         }
       >

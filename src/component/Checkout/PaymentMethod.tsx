@@ -1,5 +1,3 @@
-import React from "react";
-
 interface Props {
   method: "cod" | "banking";
   setMethod: (val: "cod" | "banking") => void;

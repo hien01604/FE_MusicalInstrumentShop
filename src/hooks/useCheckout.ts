@@ -1,15 +1,18 @@
 import { useState, useMemo } from "react";
 import { type CartItem } from "../types/cart.type";
+import type { BillingInfo, CreateOrderRequest, DeliveryMethod, PaymentMethod } from "../types/order.type";
+import { checkoutAPI } from "../services/client/order.api";
 
 export default function useCheckout(cart: CartItem[]) {
   // STATES
-  const [deliveryMethod, setDeliveryMethod] = useState<"free" | "flat">("free");
-  const [paymentMethod, setPaymentMethod] = useState<"cod" | "banking">("cod");
-  const [billingInfo, setBillingInfo] = useState({
+  const [deliveryMethod, setDeliveryMethod] = useState<DeliveryMethod>("free");
+  const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>("cod");
+  const [billingInfo, setBillingInfo] = useState<BillingInfo>({
     firstName: "",
     lastName: "",
     address: "",
     city: "",
+    phone: "",
   });
 
   // CALCULATIONS
@@ -24,17 +27,26 @@ export default function useCheckout(cart: CartItem[]) {
   const totalAmount = subTotal + deliveryCost;
 
   // HANDLERS
-  const handlePlaceOrder = () => {
-    const orderData = {
-      items: cart.map(item => ({ productId: item.productId, qty: item.quantity })),
+  const handlePlaceOrder = async () => {
+    const orderData: CreateOrderRequest = {
+      items: cart.map((item) => ({
+        productId: item.productId,
+        quantity: item.quantity, // dùng đúng field trong type
+      })),
       billing: billingInfo,
       delivery: deliveryMethod,
       payment: paymentMethod,
-      total: totalAmount
     };
-    
     console.log("Placing Order:", orderData);
-    // Gọi API checkout ở đây...
+    try {
+      const res = await checkoutAPI(orderData);
+      console.log("Order created:", res);
+      alert("Order placed successfully!");
+      window.location.href = "/";
+    } catch (error) {
+      console.error("Error placing order:", error);
+      alert("Failed to place order. Please try again.");
+    }
   };
 
   return {

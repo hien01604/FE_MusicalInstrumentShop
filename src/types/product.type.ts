@@ -1,11 +1,11 @@
-export interface IBrand{
+export interface IBrand {
     brand_id: number;
     name: string;
     slug: string;
     description: string | null;
 }
 
-export interface IGroupedBrand{
+export interface IGroupedBrand {
     initial: string;
     brands: IBrand[];
 }
@@ -14,13 +14,13 @@ export interface IProductImage {
     id: number;
     image_url: string;
     is_main: boolean;
-    created_at: string; 
+    created_at: string;
 }
 
 export interface IProduct {
     id: number;
-    brand: IBrand; 
-    images: IProductImage[]; 
+    brand: IBrand;
+    images: IProductImage[];
     product_name: string;
     slug: string;
     price_display: string;
@@ -33,8 +33,8 @@ export interface IProduct {
 }
 
 export interface IPaginatedData<T> {
-    data: T[]; 
-    
+    data: T[];
+
     total: number;
     currentPage: number;
     limit: number;
@@ -42,16 +42,28 @@ export interface IPaginatedData<T> {
 
     entityName: string;
     entitySlug: string;
-    entityType: 'brand' | 'category'; 
+    entityType: 'brand' | 'category';
 }
 
 export interface ICategoryItem {
-  id: number;
-  name: string;
-  slug: string;
-  parent_id: number | null;
+    id: number;
+    name: string;
+    slug: string;
+    parent_id: number | null;
 }
 
 export interface IParentCategory extends ICategoryItem {
-  subcategories: ICategoryItem[];
+    subcategories: ICategoryItem[];
+}
+
+export interface ICollection {
+    id: number;
+    name: string;
+    slug: string;
+    type: string;
+}
+
+export interface ISearchResponse {
+    collections: ICollection[];
+    products: IProduct[];
 }

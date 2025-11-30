@@ -19,7 +19,6 @@ export const getCartAPI = (): Promise<ICartResponse> => {
 export const addOrUpdateCartItemAPI = (
     data: IAddUpdateCartItemRequest
 ): Promise<ICartResponse> => {
-    // 👇 Đã sửa: Thêm '/items'
     const urlBackend = `${API_Backend_base}/api/v1/cart/items`;
     return clientApi.post(urlBackend, data);
 };

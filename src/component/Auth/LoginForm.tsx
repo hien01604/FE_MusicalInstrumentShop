@@ -86,9 +86,6 @@ export default function LoginForm() {
                 // response đã là IGoogleLoginResponse, không cần IBackendRes
                 const response: IGoogleLoginResponse = await googleLoginAPI(tokenRequest);
 
-                // BỎ LOGIC KIỂM TRA response.error và response.data VÌ ĐÃ ĐƯỢC INTERCEPTOR XỬ LÝ
-                // Nếu API thành công (2xx), response là IGoogleLoginResponse
-
                 login(response.access_token, response.refresh_token, false, response.user);
 
                 await handleInitialCartSync();

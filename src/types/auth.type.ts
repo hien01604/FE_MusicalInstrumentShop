@@ -32,7 +32,7 @@ export interface IGoogleLoginRequest {
 }
 
 export interface IRefreshTokenRequest {
-    refresh_token: string;
+    isRemember: boolean;
 }
 
 export interface IForgotPasswordRequest {
@@ -82,7 +82,11 @@ export interface IRegisterResponse {
 
 
 export interface IRefreshTokenResponse {
-    user: UserData;
-    access_token: string;
-    refresh_token: string;
+    statusCode: number;
+    message: string;
+    data: {
+        user: UserData;
+        access_token: string;
+        refresh_token: string;
+    };
 }

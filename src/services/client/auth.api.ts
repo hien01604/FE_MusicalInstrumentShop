@@ -1,5 +1,5 @@
 import { clientApi } from "../api.customize"
-import type { IForgotPasswordRequest, IForgotPasswordResponse, IGoogleLoginRequest, IGoogleLoginResponse, ILoginRequest, ILoginResponse, IRefreshTokenRequest, IRefreshTokenResponse, IRegisterRequest, IRegisterResponse, IResetPasswordRequest } from "../../types/auth.type";
+import type { IForgotPasswordRequest, IForgotPasswordResponse, IGoogleLoginRequest, IGoogleLoginResponse, ILoginRequest, ILoginResponse, IRegisterRequest, IRegisterResponse, IResetPasswordRequest } from "../../types/auth.type";
 
 const API_Backend_base = import.meta.env.VITE_API_BASE_URL;
 
@@ -26,11 +26,6 @@ export const logoutAPI = () => {
 export const getAccountAPI = (): Promise<IRegisterResponse> => {
     const urlBackend = `${API_Backend_base}/api/v1/auth/account`
     return clientApi.get(urlBackend);
-};
-
-export const refreshTokenAPI = (data: IRefreshTokenRequest): Promise<IRefreshTokenResponse> => {
-    const urlBackend = `${API_Backend_base}/api/v1/auth/refresh`
-    return clientApi.post(urlBackend, data);
 };
 
 export const forgotPasswordAPI = (data: IForgotPasswordRequest): Promise<IForgotPasswordResponse> => {

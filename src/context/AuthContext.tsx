@@ -1,16 +1,28 @@
-import React, { createContext, useContext, useState, type ReactNode } from 'react';
-import type { UserData } from '../types/auth.type';
-import { logoutAPI } from '../services/client/auth.api';
+import React, {
+    createContext,
+    useContext,
+    useState,
+    type ReactNode
+} from "react";
 
+import type { UserData } from "../types/auth.type";
+import { logoutAPI } from "../services/client/auth.api";
 
+// Lấy refresh token cho axios refresh logic
 export const getRefreshToken = (): string | null => {
-    return localStorage.getItem("refresh_token") || sessionStorage.getItem("refresh_token");
+    return (
+        localStorage.getItem("refresh_token") ||
+        sessionStorage.getItem("refresh_token")
+    );
 };
 
+// Dọn dẹp hoàn toàn & điều hướng
 export const forceLogout = () => {
     localStorage.removeItem("access_token");
     localStorage.removeItem("refresh_token");
     localStorage.removeItem("user_data");
+    localStorage.removeItem("isRemember");
+
     sessionStorage.removeItem("access_token");
     sessionStorage.removeItem("refresh_token");
     sessionStorage.removeItem("user_data");
@@ -20,6 +32,7 @@ export const forceLogout = () => {
 
 export interface AuthContextType {
     isLoggedIn: boolean;
+    isRemember: boolean;
     user: UserData | null;
     login: (
         accessToken: string,
@@ -30,94 +43,110 @@ export interface AuthContextType {
     logout: () => void;
 }
 
+// Tạo Context
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-interface AuthProviderProps {
-    children: ReactNode;
-}
+// Auto detect Remember Mode khi mở app / reload
+const getInitialAuth = () => {
+    // 1) Thử sessionStorage trước
+    let token = sessionStorage.getItem("access_token");
+    let user = getStoredUser(sessionStorage);
+    let isRemember = false;
 
-const getStoredUser = (storage: Storage): UserData | null => {
-    const userJson = storage.getItem('user_data');
-    if (userJson) {
-        try {
-            return JSON.parse(userJson) as UserData;
-        } catch (e) {
-            return null;
+    // 2) Nếu không có → thử localStorage
+    if (!token) {
+        token = localStorage.getItem("access_token");
+        if (token) {
+            user = getStoredUser(localStorage);
+            isRemember = true;
         }
     }
-    return null;
-};
 
-const getInitialAuth = (): { isLoggedIn: boolean, user: UserData | null } => {
-    let token = sessionStorage.getItem('access_token');
-    let user = getStoredUser(sessionStorage);
-
-    if (!token) {
-        token = localStorage.getItem('access_token');
-        if (token) user = getStoredUser(localStorage);
-    }
+    // Lưu trạng thái remember để refresh logic dùng
+    localStorage.setItem("isRemember", isRemember ? "true" : "false");
 
     return {
         isLoggedIn: !!token,
-        user: user
+        user: user,
+        isRemember,
     };
 };
 
-export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
+// Lấy user_data trong storage và parse JSON
+const getStoredUser = (storage: Storage): UserData | null => {
+    const userJson = storage.getItem("user_data");
+    if (!userJson) return null;
+    try {
+        return JSON.parse(userJson);
+    } catch {
+        return null;
+    }
+};
+
+// AuthProvider
+export const AuthProvider: React.FC<{ children: ReactNode }> = ({
+    children,
+}) => {
     const initial = getInitialAuth();
+
     const [isLoggedIn, setIsLoggedIn] = useState<boolean>(initial.isLoggedIn);
+    const [isRemember, setIsRemember] = useState<boolean>(initial.isRemember);
     const [user, setUser] = useState<UserData | null>(initial.user);
 
-
+    // LOGIN
     const login = (
         accessToken: string,
         refreshToken: string,
         rememberMe: boolean,
         userData: UserData
     ) => {
+        // Lưu remember flag cho refresh logic
+        localStorage.setItem("isRemember", rememberMe ? "true" : "false");
+        setIsRemember(rememberMe);
+
         const storage = rememberMe ? localStorage : sessionStorage;
 
         storage.setItem("access_token", accessToken);
         storage.setItem("refresh_token", refreshToken);
         storage.setItem("user_data", JSON.stringify(userData));
 
-
         setIsLoggedIn(true);
         setUser(userData);
     };
 
+    // LOGOUT
     const logout = async () => {
         try {
             await logoutAPI();
         } catch (e) {
-            console.warn("Lỗi khi hủy token trên server. Tiếp tục dọn dẹp cục bộ.", e);
+            console.warn("Server logout thất bại, vẫn dọn dẹp local", e);
         }
 
-        // Gọi hàm forceLogout để dọn dẹp và điều hướng
         forceLogout();
 
         setIsLoggedIn(false);
         setUser(null);
-    };
-
-    const value: AuthContextType = {
-        isLoggedIn,
-        user,
-        login,
-        logout,
+        setIsRemember(false);
     };
 
     return (
-        <AuthContext.Provider value={value}>
+        <AuthContext.Provider
+            value={{
+                isLoggedIn,
+                isRemember,
+                user,
+                login,
+                logout,
+            }}
+        >
             {children}
         </AuthContext.Provider>
     );
 };
 
+// Hook lấy context
 export const useAuth = (): AuthContextType => {
-    const context = useContext(AuthContext);
-    if (context === undefined) {
-        throw new Error('useAuth must be used within an AuthProvider');
-    }
-    return context;
+    const ctx = useContext(AuthContext);
+    if (!ctx) throw new Error("useAuth must be used within AuthProvider");
+    return ctx;
 };

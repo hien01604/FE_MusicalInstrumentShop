@@ -6,6 +6,7 @@ export interface BillingInfo {
   lastName: string;
   address: string;
   city: string;
+  phone: string;
 }
 
 interface Props {
@@ -15,14 +16,14 @@ interface Props {
 }
 
 export default function BillingForm({ billingInfo, setBillingInfo, onPlaceOrder }: Props) {
-  
+
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setBillingInfo({ ...billingInfo, [name]: value });
   };
 
   return (
-    <div className="bg-white p-8 rounded-lg shadow-sm border border-gray-200 h-full flex flex-col">
+    <div className="bg-white p-8 rounded-lg shadow-sm border border-gray-200 flex flex-col">
       <h3 className="text-xl font-bold text-gray-800 mb-6">Billing Details</h3>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -64,12 +65,13 @@ export default function BillingForm({ billingInfo, setBillingInfo, onPlaceOrder 
             value={billingInfo.city} onChange={handleChange}
           />
         </div>
-
         <div>
-          <label className="block text-sm font-semibold text-gray-700 mb-1">Country</label>
-          <select className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none bg-gray-100" disabled>
-            <option>Vietnam</option>
-          </select>
+          <label className="block text-sm font-semibold text-gray-700 mb-1">Phone*</label>
+          <input type="text" name="phone"
+            className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:border-red-500"
+            placeholder="Phone"
+            value={billingInfo.phone} onChange={handleChange}
+          />
         </div>
       </div>
 
