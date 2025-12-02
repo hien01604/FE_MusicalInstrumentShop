@@ -13,10 +13,10 @@ const CartItemRow: React.FC<Props> = ({ item, onIncrease, onDecrease, onRemove }
   const product = item.product;
 
   // Đảm bảo giá trị hiển thị là một chuỗi an toàn
-  const priceDisplayString = product?.price_display || '0'; 
+  const priceDisplayString = product?.price_display || '0';
 
   // Tách phần số ra từ chuỗi "16.830.000₫"
-   // (Đã thêm optional chaining và giá trị mặc định để tránh lỗi 'Cannot read properties of undefined (reading 'replace')')
+
   const numericPrice = parseFloat(priceDisplayString.replace(/[^\d]/g, "")) || 0;
   const total = numericPrice * item.quantity;
 
@@ -27,10 +27,9 @@ const CartItemRow: React.FC<Props> = ({ item, onIncrease, onDecrease, onRemove }
         <span>{product?.product_name}</span>
       </td>
 
-      {/* ✅ Hiển thị đúng giá gốc */}
       <td className="p-4">{product?.price_display}</td>
 
-      {/* ✅ Số lượng */}
+      {/* Số lượng */}
       <td className="p-4">
         <div className="flex items-center border border-gray-300 rounded-lg w-fit">
           <button onClick={onDecrease} className="px-2">
@@ -43,7 +42,7 @@ const CartItemRow: React.FC<Props> = ({ item, onIncrease, onDecrease, onRemove }
         </div>
       </td>
 
-      {/* ✅ Tổng tiền từng sản phẩm */}
+      {/* Tổng tiền từng sản phẩm */}
       <td className="p-4">
         {total.toLocaleString("vi-VN")}₫
       </td>
