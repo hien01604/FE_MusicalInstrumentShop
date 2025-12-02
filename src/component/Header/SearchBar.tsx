@@ -63,15 +63,8 @@ const SearchBar: React.FC = () => {
     }
   };
 
-  const handleBlur = () => {
-    // cho chút thời gian click vào item, xong hãy đóng
-    setTimeout(() => setOpen(false), 150);
-  };
-
   const hasResults =
     results.collections.length > 0 || results.products.length > 0;
-
-
 
   return (
     <div className="relative inline-block">
@@ -84,7 +77,6 @@ const SearchBar: React.FC = () => {
           value={value}
           onChange={handleChange}
           onFocus={handleFocus}
-          onBlur={handleBlur}
         />
         {open && (loading || results) && (
           <div className="absolute left-0 top-full mt-[2px] w-full bg-white border border-[#f5eddc] rounded-sm shadow-md z-50">
@@ -109,6 +101,12 @@ const SearchBar: React.FC = () => {
                     key={c.id}
                     type="button"
                     className="w-full text-left px-3 py-1.5 text-sm hover:bg-[#F4E4B6] border-b border-[#E9D7A4] last:border-b-0"
+                    onClick={() => {
+                      setValue("")
+                      setOpen(false)
+                      const url = getCollectionUrl(c)
+                      navigate(url)
+                    }}
                   >
                     <span className="font-semibold">{c.name}</span>
                   </button>
@@ -121,6 +119,11 @@ const SearchBar: React.FC = () => {
                     key={p.id}
                     type="button"
                     className="w-full text-left px-3 py-1.5 text-sm hover:bg-[#F4E4B6] border-b border-[#E9D7A4] last:border-b-0"
+                    onClick={() => {
+                      setValue("")
+                      setOpen(false)
+                      navigate(`/products/${p.slug}`)
+                    }}
                   >
                     <span className="font-semibold">{p.product_name}</span>
                   </button>
