@@ -3,6 +3,14 @@ import { Search } from "lucide-react";
 import type { ISearchResponse } from "../../types/product.type";
 import { searchAPI } from "../../services/client/product.api";
 import { useDebounce } from "../../hooks/useRebounce";
+import { useNavigate } from "react-router-dom";
+
+interface ICollection {
+  id: number;
+  name: string;
+  slug: string;
+  type: string;
+}
 
 const SearchBar: React.FC = () => {
   const [value, setValue] = useState("");
@@ -12,6 +20,16 @@ const SearchBar: React.FC = () => {
   });
   const [loading, setLoading] = useState(false);
   const [open, setOpen] = useState(false);
+  const navigate = useNavigate();
+
+  const getCollectionUrl = (c: ICollection) => {
+    if (c.type === "brand") {
+      return `/products/brands/${c.slug}`;
+    }
+    else {
+      return `/products/categories/${c.slug}`;
+    }
+  }
 
   const debouncedSearch = useDebounce(async (q: string) => {
     if (!q.trim()) {
@@ -69,7 +87,7 @@ const SearchBar: React.FC = () => {
           onBlur={handleBlur}
         />
         {open && (loading || results) && (
-          <div className="absolute left-0 top-full mt-[2px] w-full bg-[#FFF9E6] border border-[#d2bf9b] rounded-sm shadow-md z-50">
+          <div className="absolute left-0 top-full mt-[2px] w-full bg-white border border-[#f5eddc] rounded-sm shadow-md z-50">
             {loading && (
               <div className="px-3 py-2 text-sm text-[#8A6C22]">
                 Searching...
@@ -83,7 +101,7 @@ const SearchBar: React.FC = () => {
             )}
             {!loading && hasResults && (
               <>
-                <div className="px-3 py-1 text-sm font-semibold text-[#8A6C22] bg-[#F6E3AE] border-b border-[#D1A960]">
+                <div className="px-3 py-1 text-sm font-semibold text-[#8A6C22] bg-[#f5eace] border-b border-[#D1A960]">
                   Collection
                 </div>
                 {results.collections.map((c) => (
@@ -95,7 +113,7 @@ const SearchBar: React.FC = () => {
                     <span className="font-semibold">{c.name}</span>
                   </button>
                 ))}
-                <div className="px-3 py-1 text-sm font-semibold text-[#8A6C22] bg-[#F6E3AE] border-b border-[#D1A960]">
+                <div className="px-3 py-1 text-sm font-semibold text-[#8A6C22] bg-[#f5eace] border-b border-[#D1A960]">
                   Products
                 </div>
                 {results.products.map((p) => (
