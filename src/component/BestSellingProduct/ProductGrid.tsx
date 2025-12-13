@@ -5,23 +5,14 @@ import type SwiperCore from 'swiper';
 
 import ProductCard from "../ProductCard";
 
-export interface SimpleProduct {
-    id: number;
-    name: string;
-    price: string;
-    image: string[];
-    status: 'Có hàng' | 'Hết hàng';
-    brand?: string;
-    description: string;
-}
+type ProductGridProps = {
+    products: any[];      // sau này bạn thay any bằng type Product
+    loading?: boolean;
+};
 
-interface ProductGridProps {
-    products: SimpleProduct[];
-}
+export default function ProductGrid({ products, loading }: ProductGridProps) {
 
-export default function ProductGrid({ products }: ProductGridProps) {
-    
-    const swiperRef = useRef<SwiperCore | null>(null); 
+    const swiperRef = useRef<SwiperCore | null>(null);
 
     const swiperCustomStyles = `
         .product-grid-swiper-container .swiper-button-prev,
@@ -41,34 +32,36 @@ export default function ProductGrid({ products }: ProductGridProps) {
             background-image: none !important;
         }
     `;
+    if (loading) return <div>Loading...</div>;
+    if (!products?.length) return <div className="text-gray-500">No products</div>;
 
     return (
         <div className="relative product-grid-swiper-container">
-            
+
             <style dangerouslySetInnerHTML={{ __html: swiperCustomStyles }} />
-            
+
             <Swiper
-                modules={[Navigation]} 
+                modules={[Navigation]}
                 breakpoints={{
                     0: { slidesPerView: 1.2, spaceBetween: 16 },
                     640: { slidesPerView: 2, spaceBetween: 20 },
                     1024: { slidesPerView: 4, spaceBetween: 24 },
                 }}
-                navigation 
+                navigation
                 className="w-full product-grid-swiper h-full"
                 onSwiper={(swiper) => {
                     swiperRef.current = swiper;
                 }}
             >
                 {products.map((product, index) => (
-                    <SwiperSlide key={index}> 
-                        <ProductCard product={product} /> 
+                    <SwiperSlide key={index}>
+                        <ProductCard product={product} />
                     </SwiperSlide>
                 ))}
             </Swiper>
-            
+
             <button
-                onClick={() => swiperRef.current?.slidePrev()} 
+                onClick={() => swiperRef.current?.slidePrev()}
                 className="absolute left-0 top-1/2 transform -translate-y-1/2 z-10 
                            w-8 h-8 bg-white border border-gray-100 rounded-full shadow-md 
                            flex items-center justify-center cursor-pointer 
@@ -81,7 +74,7 @@ export default function ProductGrid({ products }: ProductGridProps) {
             </button>
 
             <button
-                onClick={() => swiperRef.current?.slideNext()} 
+                onClick={() => swiperRef.current?.slideNext()}
                 className="absolute right-0 top-1/2 transform -translate-y-1/2 z-10 
                            w-8 h-8 bg-white border border-gray-100 rounded-full shadow-md 
                            flex items-center justify-center cursor-pointer 
