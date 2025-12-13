@@ -33,3 +33,8 @@ export const searchAPI = (query: string): Promise<ISearchResponse> => {
     const urlBackend = `${API_Backend_base}/api/v1/products/search?q=${encodeURIComponent(query)}`;
     return clientApi.get(urlBackend);
 }
+
+export const getTop10Products = (slug: string) => {
+    const urlBackend = `${API_Backend_base}/api/v1/products/best-selling/${slug}?limit=10`;
+    return clientApi(urlBackend);
+}
