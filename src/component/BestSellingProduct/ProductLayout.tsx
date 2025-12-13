@@ -9,10 +9,9 @@ type BestSellingProduct = {
     id: number;
     slug: string;
     productName: string;
-    priceDisplay?: string;
-    priceNumeric?: number;
-    imageUrl?: string | null;
-    sold?: number;
+    priceDisplay: string;
+    priceNumeric: number;
+    imageUrl: string | null;
 };
 
 const TAB_TO_SLUG: Record<TabId, string> = {
@@ -54,7 +53,7 @@ export default function ProductLayout() {
                 Best Selling Product
             </h2>
             <ProductTab activeTab={activeTab} setActiveTab={setActiveTab} />
-            <ProductGrid products={products} loading={loading} />
+            <ProductGrid products={products} loading={loading}></ProductGrid>
         </>
     )
 }
